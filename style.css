@@ -1,0 +1,8 @@
+#map-container {
+  width: 100%;
+  max-width: 800px;
+  height: 500px; /*Leaflet must have specified height */
+  border: 2px solid #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
