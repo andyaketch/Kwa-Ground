@@ -1,4 +1,5 @@
-``const apiKey = '9ac3268b7ad74a20941b414190ff6523';
+function api_plug(){
+const apiKey = '9ac3268b7ad74a20941b414190ff6523';
 const category = 'catering.restaurant'; // e.g. commercial, catering, tourism, etc.
 const bbox = '36.664,-1.444,37.104,-1.160';
 
@@ -11,3 +12,6 @@ fetch(url)
     // Each item in data.features will have its own properties.place_id
   })
   .catch(err => console.error('Error:', err));
+}
+
+api_plug()
