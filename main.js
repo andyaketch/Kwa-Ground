@@ -9,25 +9,28 @@ import { setStatus, showErrors, showExisting, fillForm, readForm, setMode } from
 //main.js combines all the files acting as the main file.importing all the required external files as modules.
 
 const $ = (selector) => document.querySelector(selector);
+// these two do the same function :document.querySelector('#load-area') $('#load-area')
+//$ substitutes - querySelector('#load-area')
 
-
-const bboxOutput = $('#bbox');
-const loadButton = $('#load-area');
-const countOutput = $('#count');
-const searchInput = $('#search');
-const filterSelect = $('#status-filter');
-const form = $('#edit-form');
+const bboxOutput = document.querySelector('#bbox');
+const loadButton = document.querySelector('#load-area');
+const countOutput = document.querySelector('#count');
+const searchInput = document.querySelector('#search');
+const filterSelect = document.querySelector('#status-filter');
+const form = document.querySelector('#edit-form');
 
 const store = createStore(JSON_SERVER_URL);
 const map = initBasemap('map-container', [-1.2864, 36.8172], 13);
 const markerLayer = L.layerGroup().addTo(map);
 //grabbing page elements once for an efficient setup
 
-// ---- State -----------------------------------------------------------
+
 let currentRect = '';
 let records = [];     // everything in JSON Server
 let selected = null;  // the record being edited, or null
 let creating = false; // true while adding a brand-new building
+// temporary storage 
+
 
 // ---- Fill the dropdowns from validate.js (single source of truth) ----
 for (const status of STATUSES) {
