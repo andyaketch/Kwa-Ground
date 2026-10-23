@@ -1,37 +1,104 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"">
-    
-    <title>Kwa Ground</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kwa Ground: spatial auditing</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script type="module" src="main.js"></script>
 </head>
 <body>
-    <section></section>
-    <section class="mapBox" id="mapBox">
-        <div id="map-container">
+  <header class="site-header">
+    <h1>Kwa Ground</h1>
+    <p class="subtitle">Spatial auditing: when the map sends you to a building that isn't there, fix it.</p>
+  </header>
 
-        </div>
+  <p class="banner">Demo: your corrections are saved to a staging server. They are not sent to OpenStreetMap or Geoapify.</p>
+
+  <main class="layout">
+    <section class="map-section" aria-labelledby="map-heading">
+      <h2 id="map-heading">Map</h2>
+
+      <div class="toolbar">
+        <button type="button" id="load-area" class="primary">Load this area</button>
+        <label for="search">Search by name</label>
+        <input type="search" id="search" placeholder="e.g. Total">
+        <label for="status-filter">Status</label>
+        <select id="status-filter">
+          <option value="all">All</option>
+        </select>
+      </div>
+
+      <p class="meta">
+        Area (west,south,east,north): <output id="bbox"></output>
+        · <output id="count">0 of 0 shown</output>
+      </p>
+      <p id="status" role="status" aria-live="polite">Starting…</p>
+
+      <div id="map-container" aria-label="Map of buildings"></div>
+
+      <ul class="legend" aria-label="Pin colours">
+        <li><span class="swatch pin--unchecked"></span> Unchecked</li>
+        <li><span class="swatch pin--confirmed"></span> Confirmed</li>
+        <li><span class="swatch pin--moved"></span> Moved</li>
+        <li><span class="swatch pin--not_found"></span> Not found</li>
+      </ul>
     </section>
-    <section class="textbox" id="lat-long">
-        <div id="latitude">
-        <label for="latitude" placeholder="Enter latitude">Latitude</label>
-        <input type="text" id="latitude" name="latitude" placeholder="Enter latitude">
-        </div>
-        <div id="longitude">
-        <label for="longitude">Longitude</label>
-        <input type="text" id="longitude" name="longitude" placeholder="Enter longitude">
-        </div>
-        <div>
-            <button id="submitCoordinates">Search</button>
-        </div>
-    </section>
-    <section></section>
-    <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-  ></script>
-<script type="module" src="main.js"></script>
+
+    <aside class="panels">
+      <section aria-labelledby="existing-heading" class="panel">
+        <h2 id="existing-heading">Existing information</h2>
+        <dl>
+          <dt>Name</dt><dd id="ex-name">–</dd>
+          <dt>Address</dt><dd id="ex-address">–</dd>
+          <dt>Original position</dt><dd id="ex-original">Select a pin on the map.</dd>
+          <dt>Status</dt><dd id="ex-status">–</dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="form-title" class="panel">
+        <h2 id="form-title">Updated information</h2>
+        <form id="edit-form" novalidate>
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" maxlength="100" autocomplete="off">
+
+          <label for="f-address">Address</label>
+          <input id="f-address" name="address" type="text" maxlength="200" autocomplete="off">
+
+          <div class="row">
+            <div>
+              <label for="f-lat">Latitude</label>
+              <input id="f-lat" name="lat" type="number" step="any" min="-90" max="90">
+            </div>
+            <div>
+              <label for="f-lon">Longitude</label>
+              <input id="f-lon" name="lon" type="number" step="any" min="-180" max="180">
+            </div>
+          </div>
+          <button type="button" id="btn-locate">Use my location</button>
+
+          <label for="f-status">Status</label>
+          <select id="f-status" name="status"></select>
+
+          <label for="f-note">Note</label>
+          <textarea id="f-note" name="note" rows="3" maxlength="280"></textarea>
+
+          <ul id="form-errors" role="alert"></ul>
+
+          <div class="actions">
+            <button type="submit" id="btn-save" class="primary" disabled>Save changes</button>
+            <button type="button" id="btn-new">New building</button>
+            <button type="button" id="btn-delete" class="danger" disabled>Delete</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <p>Open source (MIT licence). Map data &copy; OpenStreetMap contributors. Places powered by <a href="https://www.geoapify.com/">Geoapify</a>.</p>
+  </footer>
 </body>
 </html>
