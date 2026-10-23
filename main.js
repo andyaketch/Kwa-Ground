@@ -53,6 +53,7 @@ map.on('click', (event) => {
 //whenever the map is clicked, call this function
 
 function pinIcon(record) {
+//designs the location pin
   let isSelected = false;
   if (selected !== null && selected.id === record.id) {
     isSelected = true;
@@ -81,7 +82,7 @@ function visibleRecords() {
 }
 
 function renderMarkers() {
-  // Strategy: wipe all markers and redraw. Simple and reliable.
+  // plots the facilities on the map
   markerLayer.clearLayers();
   const visible = visibleRecords();
 
@@ -92,10 +93,6 @@ function renderMarkers() {
       title: record.name,
     });
 
-    // NOTE 6 (closures): each handler below "remembers" the `record`
-    // from its own loop pass. That works because `const` inside a loop
-    // body is created fresh on every pass. This is a closure, and
-    // we'll study it properly later.
     marker.on('click', () => selectRecord(record.id));
     marker.on('dragend', () => onDragEnd(record.id, marker.getLatLng()));
     marker.addTo(markerLayer);
@@ -112,11 +109,7 @@ function syncPanels() {
 }
 
 
-// ---- 4. Helpers for the records array --------------------------------
-
-// NOTE 7 (immutability): .map() builds a NEW array. For each record we
-// return either the updated one (if the ids match) or the old one
-// untouched. We don't edit the array in place; we replace it.
+// .map() builds a new array. For each record we return either the updated one (if the ids match) or the old one untouched.don't edit the array in place; replace it.
 function replaceRecord(updated) {
   records = records.map((record) => {
     if (record.id === updated.id) {
@@ -127,42 +120,32 @@ function replaceRecord(updated) {
 }
 
 // .find() returns the first match, or `undefined` if nothing matches.
-// `|| null` turns "undefined" into null so our "nothing selected" state
-// always looks the same.
 function findRecordById(id) {
   return records.find((record) => record.id === id) || null;
 }
 
 
-// ---- 5. GET: load everything we've saved -----------------------------
-// NOTE 8 (async/await): `async` marks a function that can pause.
-// `await` pauses THIS function until the promise finishes, without
-// freezing the page. `store.list()` talks to JSON Server over the
-// network, so it returns a promise.
+//`async` marks a function that can pause.
+// `await` pauses this very function until the promise finishes, withou freezing the page. 
 async function refresh() {
   records = await store.list();
-
-  // The server's copy may have changed, so re-point `selected` at the
-  // fresh object with the same id (or null if it no longer exists).
+//`store.list()` talks to JSON Server over the network, so it returns a promise.
   if (selected !== null) {
     selected = findRecordById(selected.id);
   }
   renderMarkers();
 }
 
-
-// ---- 6. Selecting a pin ----------------------------------------------
 function selectRecord(id) {
   selected = findRecordById(id);
   creating = false;
+//Adding mode (creating is true): the user pressed “new building” and is placing a brand-new pin.
+//Normal mode (creating is false): the user is looking at or editing buildings that already exist.
   syncPanels();
+//syncs the panels such that the selected on the map is the one on the side panels
   renderMarkers();
 }
 
-
-// ---- 7. PATCH: drag a pin to correct its position --------------------
-// NOTE 9: PATCH sends only the fields that changed. PUT (later) sends
-// the whole record.
 async function onDragEnd(id, latlng) {
   const record = findRecordById(id);
   if (record === null) return;
