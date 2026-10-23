@@ -1,9 +1,12 @@
-// 1. Initialize map inside <div id="map-container"></div>
-// Coordinates format: [latitude, longitude], initial zoom level
-const map = L.map('map-container').setView([0.0, 36.0], 7);
+export function initBasemap(containerId = 'map-container', center = [0.0, 36.0], zoom = 7) {
+  // Initialize the Leaflet map
+  const map = L.map(containerId).setView(center, zoom);
 
-// 2. Fetch and attach OpenStreetMap tiles
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+  // Attach OpenStreetMap tiles
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  return map;
+}
