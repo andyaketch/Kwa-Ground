@@ -154,10 +154,8 @@ async function onDragEnd(id, latlng) {
   if (record.status === 'unchecked') {
     changes.status = 'moved';
   }
+//This object will be sent to the server with PATCH, which means “update only these fields.”
 
-  // NOTE 10 (try/catch): if ANY awaited call inside `try` fails, JS
-  // jumps straight to `catch` with the error. Without it, a failed save
-  // would be silent.
   try {
     setStatus('Saving new position…');
     const updated = await store.patch(id, changes);
@@ -170,12 +168,11 @@ async function onDragEnd(id, latlng) {
     setStatus(error.message, 'error');
   }
 
-  // Runs after success AND failure. On failure, `records` still holds
-  // the old position, so redrawing snaps the pin back to where it was.
+// Runs after success and failure. When failed, records still holds the old position, so redrawing snaps the pin back to where it was.
   renderMarkers();
 }
 
-
+//HERE WE ARE
 // ---- 8. GET (Geoapify) then POST (our server): load a new area -------
 async function handleLoadClick() {
   if (isAreaTooLarge(map.getBounds())) {
