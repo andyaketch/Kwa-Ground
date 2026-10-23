@@ -2,11 +2,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"">
+    
     <title>Kwa Ground</title>
 </head>
 <body>
     <section></section>
-    <section></section>
+    <section class="mapBox" id="mapBox">
+        <div id="map-container">
+
+        </div>
+    </section>
     <section class="textbox" id="lat-long">
         <div id="latitude">
         <label for="latitude" placeholder="Enter latitude">Latitude</label>
@@ -21,5 +28,11 @@
         </div>
     </section>
     <section></section>
+    <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+  <script src="basemap.js"></script>
 </body>
 </html>
