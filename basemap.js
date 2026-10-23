@@ -1,4 +1,4 @@
-export function initBasemap(containerId = 'map-container', center = [0.0, 36.0], zoom = 7) {
+export function initBasemap(containerId = 'map-container', center = [-1.2864, 36.8172], zoom = 13) {
   // Initialize the Leaflet map
   const map = L.map(containerId).setView(center, zoom);
 
