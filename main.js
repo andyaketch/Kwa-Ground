@@ -260,7 +260,8 @@ async function saveExistingBuilding(formValues) {
 //It copies in formValues on top, so name, lat, status and the other form fields are overwritten with your edits.
 
 async function handleSubmit(event) {
-  // Stop the browser's default behaviour (reloading the page).
+//stop the browser's default behaviour (reloading the page).
+//function that runs when you press Save changes or Add building.
   event.preventDefault();
 
   const result = validateRecord(readForm());
@@ -269,7 +270,8 @@ async function handleSubmit(event) {
     setStatus('Fix the problems listed in the form.', 'error');
     return;
   }
-
+//creating is true (you pressed New building): createNewBuilding sends a POST.
+//Otherwise, if a building is selected: saveExistingBuilding sends a PUT.
   try {
     setStatus('Saving…');
     if (creating) {
