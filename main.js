@@ -1,4 +1,3 @@
-
 import { initBasemap } from './basemap.js';
 import { boundsToRect, isAreaTooLarge, round6 } from './geo.js';
 import { fetchPlaces, placeToRecord } from './api.js';
@@ -172,8 +171,16 @@ async function onDragEnd(id, latlng) {
   renderMarkers();
 }
 
-//HERE WE ARE
-// ---- 8. GET (Geoapify) then POST (our server): load a new area -------
+// True if a place with this placeId is already saved in JSON Server.
+function isAlreadySaved(placeId, savedRecords) {
+  for (const record of savedRecords) {
+    if (record.placeId === placeId) {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function handleLoadClick() {
   if (isAreaTooLarge(map.getBounds())) {
     setStatus('This area is too large. Zoom in and try again.', 'error');
@@ -184,28 +191,26 @@ async function handleLoadClick() {
   setStatus('Loading places for this area…');
 
   try {
-    // NOTE 11 (Promise.all): the two requests don't depend on each
-    // other, so we start both at once and wait for BOTH to finish. That
-    // is faster than awaiting them one after the other. The result is
-    // an array in the same order, which we unpack with destructuring.
-    const [places, existing] = await Promise.all([
-      fetchPlaces(currentRect, GEOAPIFY_KEY),
-      store.list(),
-    ]);
+//get palces>records saved>await a promise>next line runs
+    const places = await fetchPlaces(currentRect, GEOAPIFY_KEY);
+    const existing = await store.list();
 
-    // NOTE 12 (Set): a Set is a collection of unique values with very
-    // fast `.has()` lookups. We use it to skip places we've already
-    // saved, so repeated loads don't create duplicates.
-    const knownIds = new Set(existing.map((record) => record.placeId));
-    const freshPlaces = places.filter((place) => !knownIds.has(place.placeId));
+    // NOTE 12 (loop): go through every place and keep only the ones we
+    // have not saved yet, so repeated loads don't create duplicates.
+    const freshPlaces = [];
+    for (const place of places) {
+      if (!isAlreadySaved(place.placeId, existing)) {
+        freshPlaces.push(place);
+      }
+    }
 
-    // .map() here turns each place into a PROMISE (one POST request
-    // each). Promise.all then waits for all of them together.
-    // Trade-off: fast, but fires many requests at once. A `for...of`
-    // loop with `await` inside would be slower but gentler.
-    await Promise.all(
-      freshPlaces.map((place) => store.create(placeToRecord(place)))
-    );
+    // One POST per new place, one after the other. Trade-off: slower than
+    // sending them all at once (100 places = 100 requests in a row, which
+    // is noticeable on a hosted server), but easy to follow and gentle on
+    // the server.
+    for (const place of freshPlaces) {
+      await store.create(placeToRecord(place));
+    }
 
     await refresh();
     const alreadySaved = places.length - freshPlaces.length;
@@ -227,20 +232,26 @@ loadButton.addEventListener('click', handleLoadClick);
 
 // POST: create a brand-new building that didn't exist in Geoapify.
 async function createNewBuilding(formValues) {
-  // NOTE 15 (spread in an object): `...formValues` copies every field
-  // from formValues into this new object. If a key appears twice, the
-  // LATER one wins, so put defaults first and overrides last.
-  const created = await store.create({
+  // NOTE 15 (building the object by hand): placeId and the original
+  // position are null because this building did not come from Geoapify.
+  // The other fields come straight from the form.
+  const newRecord = {
     placeId: null,
     originalLat: null,
     originalLon: null,
-    ...formValues,
-  });
+    name: formValues.name,
+    address: formValues.address,
+    lat: formValues.lat,
+    lon: formValues.lon,
+    status: formValues.status,
+    note: formValues.note,
+  };
+  const created = await store.create(newRecord);
 
-  // NOTE 16 (spread in an array): build a new array holding all the old
-  // records plus the new one. Same idea as .concat() or `+` on lists in
-  // Python, written the modern way.
-  records = [...records, created];
+  // NOTE 16 (.concat): builds a NEW array holding all the old records
+  // plus the new one, and we store it back in `records`. Same idea as
+  // `+` on lists in Python.
+  records = records.concat([created]);
   selected = created;
   creating = false;
   setStatus('Building added.', 'success');
@@ -249,8 +260,12 @@ async function createNewBuilding(formValues) {
 // PUT: replace an existing building with the edited version.
 async function saveExistingBuilding(formValues) {
   // Start from everything we already know (selected), then let the
-  // form values overwrite the fields the user edited.
-  const saved = await store.replace(selected.id, { ...selected, ...formValues });
+  // form values overwrite the fields the user edited. Object.assign
+  // copies fields from the objects on the right into the one on the
+  // left; if a field appears twice, the LATER one wins. The empty {} at
+  // the start makes sure we build a new object and leave `selected` alone.
+  const fullRecord = Object.assign({}, selected, formValues);
+  const saved = await store.replace(selected.id, fullRecord);
   replaceRecord(saved);
   selected = saved;
   setStatus('Changes saved.', 'success');
@@ -313,7 +328,16 @@ async function handleDeleteClick() {
   try {
     setStatus('Deleting…');
     await store.remove(idToDelete);
-    records = records.filter((record) => record.id !== idToDelete);
+
+    // Build a new list that keeps every record except the deleted one.
+    const remaining = [];
+    for (const record of records) {
+      if (record.id !== idToDelete) {
+        remaining.push(record);
+      }
+    }
+    records = remaining;
+
     selected = null;
     syncPanels();
     renderMarkers();
