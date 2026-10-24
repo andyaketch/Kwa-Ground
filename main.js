@@ -287,8 +287,6 @@ async function handleSubmit(event) {
 }
 form.addEventListener('submit', handleSubmit);
 
-
-// ---- 10. Start adding a missing building -----------------------------
 function handleNewClick() {
   selected = null;
   creating = true;
@@ -300,6 +298,7 @@ function handleNewClick() {
   $('#f-status').value = 'confirmed';
   renderMarkers();
   setStatus('Click the map to place the building, then fill in the form.');
+//the latitude and longitude boxes get the middle of the map you’re looking at so the form never starts with empty positions. You can then click the map to move it, or type your own
 }
 $('#btn-new').addEventListener('click', handleNewClick);
 
