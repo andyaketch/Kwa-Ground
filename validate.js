@@ -39,9 +39,20 @@ if (lon < -180 || lon > 180) {
   errors.push('Longitude must be a number between -180 and 180.');
 }
 
-  return {
-    valid: errors.length === 0,
-    errors,
-    value: { name, address, lat, lon, status, note },
-  };
+const isValid = errors.length === 0;
+
+const cleanValues = {
+  name: name,
+  address: address,
+  lat: lat,
+  lon: lon,
+  status: status,
+  note: note,
+};
+
+return {
+  valid: isValid,
+  errors: errors,
+  value: cleanValues,
+};
 }
