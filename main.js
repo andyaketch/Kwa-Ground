@@ -1,4 +1,3 @@
-
 import { initBasemap } from './basemap.js';
 import { boundsToRect, isAreaTooLarge, round6 } from './geo.js';
 import { fetchPlaces, placeToRecord } from './api.js';
@@ -31,60 +30,73 @@ let selected = null;  // the record being edited, or null
 let creating = false; // true while adding a brand-new building
 // temporary storage 
 
-
-// ---- Fill the dropdowns from validate.js (single source of truth) ----
 for (const status of STATUSES) {
   $('#f-status').append(new Option(STATUS_LABELS[status], status));
   filterSelect.append(new Option(STATUS_LABELS[status], status));
 }
 
-// ---- Map: keep the current area in sync ------------------------------
 function updateRect() {
   currentRect = boundsToRect(map.getBounds());
   bboxOutput.textContent = currentRect;
 }
 map.on('moveend', updateRect);
 updateRect();
+//gets the panned/zoomed box from the map (the area in focus and updates in to 'currentrect')
+//map.on is an event listener
 
-// Clicking the map fills lat/lon while adding a new building.
 map.on('click', (event) => {
   if (!creating) return;
   $('#f-lat').value = round6(event.latlng.lat);
   $('#f-lon').value = round6(event.latlng.lng);
 });
+//whenever the map is clicked, call this function
 
-// ---- Rendering -------------------------------------------------------
 function pinIcon(record) {
-  const isSelected = selected && selected.id === record.id;
+//designs the location pin
+  let isSelected = false;
+  if (selected !== null && selected.id === record.id) {
+    isSelected = true;
+  }
+  //selected location, like the currently selected location
+  const selectedClass = isSelected ? ' pin--selected' : '';
+
   return L.divIcon({
-    className: `pin pin--${record.status}${isSelected ? ' pin--selected' : ''}`,
+    className: `pin pin--${record.status}${selectedClass}`,
     iconSize: [20, 20],
   });
+}
+
+function matchesFilters(record, query, status) {
+  const statusOk = status === 'all' || record.status === status;
+  const nameOk = query === '' || record.name.toLowerCase().includes(query);
+  return statusOk && nameOk;
 }
 
 function visibleRecords() {
   const query = searchInput.value.trim().toLowerCase();
   const status = filterSelect.value;
-  return records.filter(
-    (r) =>
-      (status === 'all' || r.status === status) &&
-      (!query || r.name.toLowerCase().includes(query))
-  );
+
+  // .filter() keeps the items for which the function returns true.
+  return records.filter((record) => matchesFilters(record, query, status));
 }
 
 function renderMarkers() {
+  // plots the facilities on the map
   markerLayer.clearLayers();
   const visible = visibleRecords();
+
   for (const record of visible) {
     const marker = L.marker([record.lat, record.lon], {
       icon: pinIcon(record),
       draggable: true,
       title: record.name,
     });
+
     marker.on('click', () => selectRecord(record.id));
     marker.on('dragend', () => onDragEnd(record.id, marker.getLatLng()));
     marker.addTo(markerLayer);
   }
+
   countOutput.textContent = `${visible.length} of ${records.length} shown`;
 }
 
@@ -92,34 +104,56 @@ function syncPanels() {
   showExisting(selected);
   fillForm(selected);
   showErrors([]);
-  setMode({ editing: Boolean(selected), creating });
+  setMode({ editing: selected !== null, creating: creating });
 }
 
+
+// .map() builds a new array. For each record we return either the updated one (if the ids match) or the old one untouched.don't edit the array in place; replace it.
 function replaceRecord(updated) {
-  records = records.map((r) => (r.id === updated.id ? updated : r));
+  records = records.map((record) => {
+    if (record.id === updated.id) {
+      return updated;
+    }
+    return record;
+  });
 }
 
-// ---- GET: load everything we've saved --------------------------------
+// .find() returns the first match, or `undefined` if nothing matches.
+function findRecordById(id) {
+  return records.find((record) => record.id === id) || null;
+}
+
+
+//`async` marks a function that can pause.
+// `await` pauses this very function until the promise finishes, withou freezing the page. 
 async function refresh() {
   records = await store.list();
-  if (selected) selected = records.find((r) => r.id === selected.id) ?? null;
+//`store.list()` talks to JSON Server over the network, so it returns a promise.
+  if (selected !== null) {
+    selected = findRecordById(selected.id);
+  }
   renderMarkers();
 }
 
-// ---- Selecting a pin -------------------------------------------------
 function selectRecord(id) {
-  selected = records.find((r) => r.id === id) ?? null;
+  selected = findRecordById(id);
   creating = false;
+//Adding mode (creating is true): the user pressed “new building” and is placing a brand-new pin.
+//Normal mode (creating is false): the user is looking at or editing buildings that already exist.
   syncPanels();
+//syncs the panels such that the selected on the map is the one on the side panels
   renderMarkers();
 }
 
-// ---- PATCH: drag a pin to correct its position ----------------------
 async function onDragEnd(id, latlng) {
-  const record = records.find((r) => r.id === id);
-  if (!record) return;
+  const record = findRecordById(id);
+  if (record === null) return;
+
   const changes = { lat: round6(latlng.lat), lon: round6(latlng.lng) };
-  if (record.status === 'unchecked') changes.status = 'moved';
+  if (record.status === 'unchecked') {
+    changes.status = 'moved';
+  }
+//This object will be sent to the server with PATCH, which means “update only these fields.”
 
   try {
     setStatus('Saving new position…');
@@ -132,94 +166,165 @@ async function onDragEnd(id, latlng) {
   } catch (error) {
     setStatus(error.message, 'error');
   }
-  renderMarkers(); // on failure this snaps the pin back
+
+// Runs after success and failure. When failed, records still holds the old position, so redrawing snaps the pin back to where it was.
+  renderMarkers();
 }
 
-// ---- GET (Geoapify) then POST (our server): load a new area ---------
-loadButton.addEventListener('click', async () => {
+// True if a place with this placeId is already saved in JSON Server.
+function isAlreadySaved(placeId, savedRecords) {
+  for (const record of savedRecords) {
+    if (record.placeId === placeId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function handleLoadClick() {
   if (isAreaTooLarge(map.getBounds())) {
     setStatus('This area is too large. Zoom in and try again.', 'error');
     return;
   }
-  loadButton.disabled = true;
+
+  loadButton.disabled = true; // stop double-clicks while we work
   setStatus('Loading places for this area…');
+
   try {
-    const [places, existing] = await Promise.all([
-      fetchPlaces(currentRect, GEOAPIFY_KEY),
-      store.list(),
-    ]);
-    const known = new Set(existing.map((r) => r.placeId));
-    const fresh = places.filter((p) => !known.has(p.placeId));
-    await Promise.all(fresh.map((p) => store.create(placeToRecord(p))));
+//can fail (no internet, bad key, server not running)
+//get palces>records saved>await a promise>next line runs
+//Requests take time, so it returns a promise.
+    const places = await fetchPlaces(currentRect, GEOAPIFY_KEY);
+    const existing = await store.list();
+
+    const freshPlaces = [];
+    for (const place of places) {
+      if (!isAlreadySaved(place.placeId, existing)) {
+        freshPlaces.push(place);
+      }
+    }
+
+    for (const place of freshPlaces) {
+      await store.create(placeToRecord(place));
+    }
+
     await refresh();
-    setStatus(
-      `${fresh.length} new, ${places.length - fresh.length} already saved.`,
-      'success'
-    );
+    const alreadySaved = places.length - freshPlaces.length;
+    setStatus(`${freshPlaces.length} new, ${alreadySaved} already saved.`, 'success');
   } catch (error) {
     setStatus(`Could not load: ${error.message}`, 'error');
   } finally {
+//runs after success and after failure.
+
     loadButton.disabled = false;
   }
-});
+}
+loadButton.addEventListener('click', handleLoadClick);
 
-// ---- PUT (edit) or POST (new) from the form --------------------------
-form.addEventListener('submit', async (event) => {
+// POST: create a brand-new building that didn't exist in Geoapify.
+async function createNewBuilding(formValues) {
+  const newRecord = {
+    placeId: null,
+    originalLat: null,
+    originalLon: null,
+    name: formValues.name,
+    address: formValues.address,
+    lat: formValues.lat,
+    lon: formValues.lon,
+    status: formValues.status,
+    note: formValues.note,
+  };
+  const created = await store.create(newRecord);
+
+//(.concat): builds a new array holding all the old records plus the new one, and store it back in `records`.
+  records = records.concat([created]);
+  selected = created;
+  creating = false;
+  setStatus('Building added.', 'success');
+}
+
+// PUT: replace an existing building with the edited version.
+async function saveExistingBuilding(formValues) {
+// Start from everything already known (selected), then let the form values overwrite the fields the user edited. 
+  const fullRecord = Object.assign({}, selected, formValues);
+  const saved = await store.replace(selected.id, fullRecord);
+  replaceRecord(saved);
+  selected = saved;
+  setStatus('Changes saved.', 'success');
+}
+//formValues is the cleaned form data from validateRecord
+//selected is the full record you clicked.
+//Object.assign copies fields from the objects on the right into the object on the left, in order. When a field appears in more than one, the later one wins.
+//It starts with {}, a new empty object.
+//It copies in everything from selected, so the new object has id, placeId, originalLat and so on.
+//It copies in formValues on top, so name, lat, status and the other form fields are overwritten with your edits.
+
+async function handleSubmit(event) {
+//stop the browser's default behaviour (reloading the page).
+//function that runs when you press Save changes or Add building.
   event.preventDefault();
+
   const result = validateRecord(readForm());
   showErrors(result.errors);
   if (!result.valid) {
     setStatus('Fix the problems listed in the form.', 'error');
     return;
   }
-
+//creating is true (you pressed New building): createNewBuilding sends a POST.
+//Otherwise, if a building is selected: saveExistingBuilding sends a PUT.
   try {
     setStatus('Saving…');
     if (creating) {
-      const created = await store.create({
-        placeId: null,
-        originalLat: null,
-        originalLon: null,
-        ...result.value,
-      });
-      records = [...records, created];
-      selected = created;
-      creating = false;
-      setStatus('Building added.', 'success');
-    } else if (selected) {
-      const saved = await store.replace(selected.id, { ...selected, ...result.value });
-      replaceRecord(saved);
-      selected = saved;
-      setStatus('Changes saved.', 'success');
+      await createNewBuilding(result.value);
+    } else if (selected !== null) {
+      await saveExistingBuilding(result.value);
     }
     syncPanels();
     renderMarkers();
   } catch (error) {
     setStatus(error.message, 'error');
   }
-});
+}
+form.addEventListener('submit', handleSubmit);
 
-// ---- POST: start adding a missing building ---------------------------
-$('#btn-new').addEventListener('click', () => {
+function handleNewClick() {
   selected = null;
   creating = true;
   syncPanels();
+
   const center = map.getCenter();
   $('#f-lat').value = round6(center.lat);
   $('#f-lon').value = round6(center.lng);
   $('#f-status').value = 'confirmed';
   renderMarkers();
   setStatus('Click the map to place the building, then fill in the form.');
-});
+//the latitude and longitude boxes get the middle of the map you’re looking at so the form never starts with empty positions. You can then click the map to move it, or type your own
+}
+$('#btn-new').addEventListener('click', handleNewClick);
 
-// ---- DELETE -----------------------------------------------------------
-$('#btn-delete').addEventListener('click', async () => {
-  if (!selected) return;
-  if (!window.confirm(`Delete "${selected.name}" from the staging data?`)) return;
+async function handleDeleteClick() {
+  if (selected === null) return;
+
+  const idToDelete = selected.id;
+  const nameToDelete = selected.name;
+
+  if (!window.confirm(`Delete "${nameToDelete}" from the staging data?`)) return;
+//Ask for confirmation
   try {
     setStatus('Deleting…');
-    await store.remove(selected.id);
-    records = records.filter((r) => r.id !== selected.id);
+    await store.remove(idToDelete);
+//store.remove sends delete /places/7 (eg id is 7) and waits for the answer.
+
+// Build a new list that keeps every record except the deleted one.
+    const remaining = [];
+    for (const record of records) {
+      if (record.id !== idToDelete) {
+        remaining.push(record);
+      }
+    }
+    records = remaining;
+//builds a new list with every record except the deleted one
+
     selected = null;
     syncPanels();
     renderMarkers();
@@ -227,32 +332,45 @@ $('#btn-delete').addEventListener('click', async () => {
   } catch (error) {
     setStatus(error.message, 'error');
   }
-});
+}
+$('#btn-delete').addEventListener('click', handleDeleteClick);
 
-// ---- Use my location --------------------------------------------------
-$('#btn-locate').addEventListener('click', () => {
+function handleLocateClick() {
   if (!navigator.geolocation) {
     setStatus('Your browser does not support location.', 'error');
     return;
   }
+//fills the Latitude and Longitude boxes with where your device says you are
   setStatus('Finding your position…');
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      $('#f-lat').value = round6(pos.coords.latitude);
-      $('#f-lon').value = round6(pos.coords.longitude);
-      map.setView([pos.coords.latitude, pos.coords.longitude], 18);
-      setStatus('Position filled in. Check it, then save.', 'success');
-    },
-    () => setStatus('Could not get your position (permission denied?).', 'error')
-  );
-});
+  navigator.geolocation.getCurrentPosition(onLocationFound, onLocationError);
+}
 
-// ---- Filters ----------------------------------------------------------
+function onLocationFound(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  $('#f-lat').value = round6(lat);
+  $('#f-lon').value = round6(lon);
+  map.setView([lat, lon], 18);
+  setStatus('Position filled in. Check it, then save.', 'success');
+}
+
+function onLocationError() {
+  setStatus('Could not get your position (permission denied?).', 'error');
+}
+//error message
+$('#btn-locate').addEventListener('click', handleLocateClick);
+
 searchInput.addEventListener('input', renderMarkers);
 filterSelect.addEventListener('change', renderMarkers);
 
-// ---- Start ------------------------------------------------------------
-syncPanels();
-refresh()
-  .then(() => setStatus('Ready. Pan to an area and press "Load this area".'))
-  .catch((error) => setStatus(error.message, 'error'));
+async function start() {
+  syncPanels();
+  try {
+    await refresh();
+    setStatus('Ready. Pan to an area and press "Load this area".');
+  } catch (error) {
+    setStatus(error.message, 'error');
+  }
+}
+start();
+//puts the side panels into their starting state. Nothing is selected yet
