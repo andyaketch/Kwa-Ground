@@ -309,10 +309,11 @@ async function handleDeleteClick() {
   const nameToDelete = selected.name;
 
   if (!window.confirm(`Delete "${nameToDelete}" from the staging data?`)) return;
-
+//Ask for confirmation
   try {
     setStatus('Deleting…');
     await store.remove(idToDelete);
+//store.remove sends delete /places/7 (eg id is 7) and waits for the answer.
 
 // Build a new list that keeps every record except the deleted one.
     const remaining = [];
@@ -333,12 +334,6 @@ async function handleDeleteClick() {
 }
 $('#btn-delete').addEventListener('click', handleDeleteClick);
 
-
-// ---- 12. Use my location -----------------------------------------------
-// NOTE 18 (callbacks): the browser's geolocation API is OLDER than
-// promises, so it uses two callbacks: one for success, one for failure.
-// You can't `await` it directly. (Stretch exercise later: wrap it in a
-// Promise so you can.)
 function handleLocateClick() {
   if (!navigator.geolocation) {
     setStatus('Your browser does not support location.', 'error');
