@@ -221,16 +221,8 @@ async function handleLoadClick() {
 }
 loadButton.addEventListener('click', handleLoadClick);
 
-
-// ---- 9. PUT (edit) or POST (new) from the form -----------------------
-// NOTE 14: The submit handler was doing too much, so I split it. One
-// function decides WHICH case we're in; two small ones do the work.
-
 // POST: create a brand-new building that didn't exist in Geoapify.
 async function createNewBuilding(formValues) {
-  // NOTE 15 (building the object by hand): placeId and the original
-  // position are null because this building did not come from Geoapify.
-  // The other fields come straight from the form.
   const newRecord = {
     placeId: null,
     originalLat: null,
@@ -244,9 +236,7 @@ async function createNewBuilding(formValues) {
   };
   const created = await store.create(newRecord);
 
-  // NOTE 16 (.concat): builds a NEW array holding all the old records
-  // plus the new one, and we store it back in `records`. Same idea as
-  // `+` on lists in Python.
+//(.concat): builds a new array holding all the old records plus the new one, and store it back in `records`.
   records = records.concat([created]);
   selected = created;
   creating = false;
@@ -255,17 +245,19 @@ async function createNewBuilding(formValues) {
 
 // PUT: replace an existing building with the edited version.
 async function saveExistingBuilding(formValues) {
-  // Start from everything we already know (selected), then let the
-  // form values overwrite the fields the user edited. Object.assign
-  // copies fields from the objects on the right into the one on the
-  // left; if a field appears twice, the LATER one wins. The empty {} at
-  // the start makes sure we build a new object and leave `selected` alone.
+// Start from everything already known (selected), then let the form values overwrite the fields the user edited. 
   const fullRecord = Object.assign({}, selected, formValues);
   const saved = await store.replace(selected.id, fullRecord);
   replaceRecord(saved);
   selected = saved;
   setStatus('Changes saved.', 'success');
 }
+//formValues is the cleaned form data from validateRecord
+//selected is the full record you clicked.
+//Object.assign copies fields from the objects on the right into the object on the left, in order. When a field appears in more than one, the later one wins.
+//It starts with {}, a new empty object.
+//It copies in everything from selected, so the new object has id, placeId, originalLat and so on.
+//It copies in formValues on top, so name, lat, status and the other form fields are overwritten with your edits.
 
 async function handleSubmit(event) {
   // Stop the browser's default behaviour (reloading the page).
