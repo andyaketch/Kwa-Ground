@@ -323,6 +323,7 @@ async function handleDeleteClick() {
       }
     }
     records = remaining;
+//builds a new list with every record except the deleted one
 
     selected = null;
     syncPanels();
@@ -339,7 +340,7 @@ function handleLocateClick() {
     setStatus('Your browser does not support location.', 'error');
     return;
   }
-
+//fills the Latitude and Longitude boxes with where your device says you are
   setStatus('Finding your position…');
   navigator.geolocation.getCurrentPosition(onLocationFound, onLocationError);
 }
@@ -356,20 +357,12 @@ function onLocationFound(position) {
 function onLocationError() {
   setStatus('Could not get your position (permission denied?).', 'error');
 }
+//error message
 $('#btn-locate').addEventListener('click', handleLocateClick);
 
-
-// ---- 13. Filters -------------------------------------------------------
-// The 'input' event fires on every keystroke; 'change' fires when a
-// dropdown value changes. Both just redraw the markers.
 searchInput.addEventListener('input', renderMarkers);
 filterSelect.addEventListener('change', renderMarkers);
 
-
-// ---- 14. Start ---------------------------------------------------------
-// NOTE 19: the original used .then().catch(). That's the same idea as
-// await + try/catch, just older-looking. I used async/await so the whole
-// file reads one way.
 async function start() {
   syncPanels();
   try {
@@ -380,13 +373,4 @@ async function start() {
   }
 }
 start();
-
-
-// ---- A note on REST parameters ----------------------------------------
-// NOTE 20: you asked about rest. It uses the same `...` symbol as spread
-// but does the OPPOSITE job: spread EXPANDS things out, rest COLLECTS
-// leftovers into one. Nothing in this file needs it, so I didn't force
-// it in. Typical uses:
-//
-//   function total(...numbers) { ... }       // numbers is an array
-//   const { id, ...otherFields } = record;   // otherFields = everything but id
+//puts the side panels into their starting state. Nothing is selected yet
