@@ -302,13 +302,9 @@ function handleNewClick() {
 }
 $('#btn-new').addEventListener('click', handleNewClick);
 
-
-// ---- 11. DELETE --------------------------------------------------------
 async function handleDeleteClick() {
   if (selected === null) return;
 
-  // NOTE 17: copy what we need BEFORE the await. See my message in chat
-  // for why this matters.
   const idToDelete = selected.id;
   const nameToDelete = selected.name;
 
@@ -318,7 +314,7 @@ async function handleDeleteClick() {
     setStatus('Deleting…');
     await store.remove(idToDelete);
 
-    // Build a new list that keeps every record except the deleted one.
+// Build a new list that keeps every record except the deleted one.
     const remaining = [];
     for (const record of records) {
       if (record.id !== idToDelete) {
