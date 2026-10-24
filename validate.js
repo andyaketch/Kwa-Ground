@@ -32,12 +32,12 @@ export function validateRecord(input) {
   if (note.length > 280) errors.push('Note must be 280 characters or fewer.');
   if (!STATUSES.includes(status)) errors.push('Choose a valid status.');
 
-  if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
-    errors.push('Latitude must be a number between -90 and 90.');
-  }
-  if (!Number.isFinite(lon) || lon < -180 || lon > 180) {
-    errors.push('Longitude must be a number between -180 and 180.');
-  }
+if (lat < -90 || lat > 90) {
+  errors.push('Latitude must be a number between -90 and 90.');
+}
+if (lon < -180 || lon > 180) {
+  errors.push('Longitude must be a number between -180 and 180.');
+}
 
   return {
     valid: errors.length === 0,
