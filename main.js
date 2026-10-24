@@ -191,12 +191,12 @@ async function handleLoadClick() {
   setStatus('Loading places for this area…');
 
   try {
+//can fail (no internet, bad key, server not running)
 //get palces>records saved>await a promise>next line runs
+//Requests take time, so it returns a promise.
     const places = await fetchPlaces(currentRect, GEOAPIFY_KEY);
     const existing = await store.list();
 
-    // NOTE 12 (loop): go through every place and keep only the ones we
-    // have not saved yet, so repeated loads don't create duplicates.
     const freshPlaces = [];
     for (const place of places) {
       if (!isAlreadySaved(place.placeId, existing)) {
@@ -204,10 +204,6 @@ async function handleLoadClick() {
       }
     }
 
-    // One POST per new place, one after the other. Trade-off: slower than
-    // sending them all at once (100 places = 100 requests in a row, which
-    // is noticeable on a hosted server), but easy to follow and gentle on
-    // the server.
     for (const place of freshPlaces) {
       await store.create(placeToRecord(place));
     }
@@ -218,8 +214,8 @@ async function handleLoadClick() {
   } catch (error) {
     setStatus(`Could not load: ${error.message}`, 'error');
   } finally {
-    // NOTE 13: `finally` runs whether we succeeded or failed, so the
-    // button can never get stuck disabled.
+//runs after success and after failure.
+
     loadButton.disabled = false;
   }
 }
