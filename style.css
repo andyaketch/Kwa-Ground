@@ -84,8 +84,6 @@ align-items: center;
 margin-bottom: 0.5rem; 
 }
 
-/* Status line. Colour alone shouldn't carry the meaning, so success and
-   error also get a symbol in front. */
 #status {
   min-height: 1.5rem;
   margin: 0.25rem 0 0.5rem;
