@@ -10,21 +10,20 @@
   <script type="module" src="main.js"></script>
 </head>
 <body>
-  <section>
   <header class="site-header">
     <h1>Kwa Ground</h1>
-    <p class="subtitle">A map is only as true as its last check</p> 
-     <div id="navbar">
-  <ul>
-    <li> <a href="https://github.com/andyaketch"></a>Get in touch with us!</li>
-  </ul>
-</div>
+    <p class="subtitle">A map is only as true as its last check</p>
+    <nav id="navbar">
+      <ul>
+        <li><a href="https://github.com/andyaketch">Get in touch with us!</a></li>
+      </ul>
+    </nav>
   </header>
-</section>
 
   <main class="layout">
     <section class="map-section" aria-labelledby="map-heading">
-<!-- aria-labelledby - It names a region or block of content so screen readers can announce it during navigation -->
+      <h2 id="map-heading" class="visually-hidden">Map</h2>
+
       <div class="toolbar">
         <button type="button" id="load-area" class="primary">Load this area</button>
         <label for="search">Search by name</label>
@@ -37,6 +36,12 @@
 
       <p id="status" role="status" aria-live="polite">Starting…</p>
 
+      <!-- NEW: main.js writes to these two -->
+      <p class="meta">
+        Area: <output id="bbox">–</output> ·
+        <span id="count">0 of 0 shown</span>
+      </p>
+
       <div id="map-container" aria-label="Map of buildings"></div>
 
       <ul class="legend" aria-label="Pin colours">
@@ -48,9 +53,7 @@
     </section>
 
     <aside class="panels">
-<!-- aside - It is frequently used for sidebars, pull quotes, advertising, or floating control panels -->
       <section aria-labelledby="existing-heading" class="panel">
-<!-- prefixed by 'ex-' -->
         <h2 id="existing-heading">Existing information</h2>
         <dl>
           <dt>Name</dt><dd id="ex-name">–</dd>
@@ -58,7 +61,6 @@
           <dt>Original position</dt><dd id="ex-original">Select a pin on the map.</dd>
           <dt>Status</dt><dd id="ex-status">–</dd>
         </dl>
-<!-- dl>description list, dt>Description Term, and dd>Description Details -->
       </section>
 
       <section aria-labelledby="form-title" class="panel">
