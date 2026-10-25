@@ -134,6 +134,7 @@ margin: 0.6rem 0 0.2rem;
 
 input, select, textarea, button {
   font: inherit;
+/* inherit from the parent element eg body */
   color: var(--navy);
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--edge);
@@ -143,7 +144,6 @@ input, select, textarea, button {
 .panel input, .panel select, .panel textarea { width: 100%; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
-/* Buttons: plain = outline, primary = teal, danger = solid navy. */
 button { cursor: pointer; border-color: var(--navy); }
 button:hover:not(:disabled) { background: var(--teal); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -194,9 +194,13 @@ button.danger:hover:not(:disabled) { background: var(--navy); opacity: 0.85; }
 .legend { list-style: none; display: flex; flex-wrap: wrap; gap: 1rem; padding: 0; margin: 0.5rem 0 0; font-size: 0.85rem; }
 .swatch { display: inline-block; width: 20px; height: 20px; vertical-align: middle; }
 
-.site-footer { padding: 1rem 1.5rem 2rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+.site-footer { 
+padding: 1rem 1.5rem 2rem; 
+text-align: center; 
+color: var(--muted); 
+font-size: 0.85rem; }
 
-/* Tablet and mobile */
+/* tablet and mobile */
 @media (max-width: 800px) {
   .layout { grid-template-columns: 1fr; padding: 1rem; }
   #map-container { height: 380px; }
