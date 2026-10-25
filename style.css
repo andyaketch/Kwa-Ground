@@ -92,11 +92,24 @@ margin-bottom: 0.5rem;
   border-radius: 6px;
   font-weight: 600;
 }
-#status[data-kind="success"] { background: var(--teal); border-color: var(--navy); }
-#status[data-kind="success"]::before { content: "✓ "; }
-#status[data-kind="error"] { background: var(--navy); border-color: var(--navy); color: var(--offwhite); }
-#status[data-kind="error"]::before { content: "✕ "; }
+#status[data-kind="success"] {
+  background: var(--teal);
+  border-color: var(--navy);
+}
 
+#status[data-kind="success"]::before {
+  content: "✓ ";
+}
+
+#status[data-kind="error"] {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--offwhite);
+}
+
+#status[data-kind="error"]::before {
+  content: "✕ ";
+}
 .panel {
   background: var(--white);
   border: 1px solid var(--line);
