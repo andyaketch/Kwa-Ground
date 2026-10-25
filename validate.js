@@ -33,10 +33,10 @@ export function validateRecord(input) {
   if (note.length > 200) errors.push('Note must be 280 characters or fewer.');
   if (!STATUSES.includes(status)) errors.push('Choose a valid status.');
 
-if (lat < -90 || lat > 90) {
+if (Number.isNaN(lat) || lat < -90 || lat > 90) {
   errors.push('Latitude must be a number between -90 and 90.');
 }
-if (lon < -180 || lon > 180) {
+if (Number.isNaN(lon) || lon < -180 || lon > 180) {
   errors.push('Longitude must be a number between -180 and 180.');
 }
 
