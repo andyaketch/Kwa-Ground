@@ -1,4 +1,5 @@
-// validate.js: input validation for the edit form. Pure functions.
+//this code goes to validate input.
+//coordinates dont tend to act like normal input
 
 export const STATUSES = ['unchecked', 'confirmed', 'moved', 'not_found'];
 
@@ -29,7 +30,7 @@ export function validateRecord(input) {
   if (name.length < 2) errors.push('Name must be at least 2 characters.');
   if (name.length > 100) errors.push('Name must be 100 characters or fewer.');
   if (address.length > 200) errors.push('Address must be 200 characters or fewer.');
-  if (note.length > 280) errors.push('Note must be 280 characters or fewer.');
+  if (note.length > 200) errors.push('Note must be 280 characters or fewer.');
   if (!STATUSES.includes(status)) errors.push('Choose a valid status.');
 
 if (lat < -90 || lat > 90) {
