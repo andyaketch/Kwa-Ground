@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 :root {
   --navy: #12202b;
   --offwhite: #f3efe6;
@@ -7,6 +7,9 @@
   --muted: rgba(18, 32, 43, 0.72); /* navy, softened: secondary text */
   --edge: rgba(18, 32, 43, 0.5);   /* navy, softened: input borders */
   --line: rgba(18, 32, 43, 0.2);   /* navy, faint: panel borders */
+  --main-font: "Nunito", sans-serif;
+    --font-regular: 400;
+    --font-bold: 700;
 }
 
 * { box-sizing: border-box; }
@@ -22,16 +25,33 @@ body {
 a { color: var(--navy); }
 a:hover { background: var(--teal); }
 
-.site-header { padding: 1rem 1.5rem 0.9rem; background: var(--navy); color: var(--offwhite); }
-.site-header h1 { margin: 0; font-size: 1.6rem; }
-.subtitle { margin: 0.25rem 0 0; color: var(--teal); }
+.site-header { 
+position: sticky;
+padding: 1rem 1.5rem 0.9rem;
+background: var(--navy);
+color: var(--offwhite); 
+text-align: center;
+font: var(--main-font);
+}
 
-.banner {
-  margin: 0;
-  padding: 0.5rem 1.5rem;
-  background: var(--teal);
-  color: var(--navy);
-  font-weight: 600;
+.site-header h1 { 
+  margin: 0; 
+  font-size: 
+  1.6rem; 
+}
+.subtitle { 
+margin: 0.25rem 0 0; 
+color: var(--teal); 
+}
+#navbar {
+  position:sticky;
+  top: 0%;
+  z-index: 1000;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
 }
 
 .layout {
@@ -52,11 +72,16 @@ h2 { font-size: 1.1rem; margin: 0 0 0.5rem; }
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(18, 32, 43, 0.2);
 }
-/* Leaflet's own links (the attribution) default to blue. */
+
 .leaflet-container a { color: var(--navy); }
 
-.toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
-.meta { margin: 0.25rem 0; font-size: 0.85rem; color: var(--muted); word-break: break-all; }
+.toolbar { 
+display: flex; 
+flex-wrap: wrap; 
+gap: 0.5rem; 
+align-items: center; 
+margin-bottom: 0.5rem; 
+}
 
 /* Status line. Colour alone shouldn't carry the meaning, so success and
    error also get a symbol in front. */
@@ -79,6 +104,7 @@ h2 { font-size: 1.1rem; margin: 0 0 0.5rem; }
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
+  box-shadow: #4cc3b0;
 }
 dl { margin: 0; }
 dt { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
