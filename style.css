@@ -18,7 +18,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--main-font);
   color: var(--navy);
   background: var(--offwhite);
   line-height: 1.45;
@@ -28,36 +28,41 @@ a { color: var(--navy); }
 a:hover { background: var(--teal); }
 
 .site-header { 
-position: sticky;
-padding: 1rem 1.5rem 0.9rem;
-background:#f0a93b;
-color: var(--offwhite); 
-text-align: center;
-font: var(--main-font);
-}
-
-.site-header h1 { 
   position: sticky;
   top: 0;
   z-index: 1100;
-  margin: 0; 
-  font-size: 
-  1.6rem; 
-  color:#12202b
+  padding: 1rem 1.5rem 0.9rem;
+  background: #f0a93b;
+  color: var(--offwhite);
+  text-align: center;
+}
+
+  .site-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #12202b;
 }
 .subtitle { 
 margin: 0.25rem 0 0; 
 color: #12202b; 
 }
 #navbar {
-  position:sticky;
-  top: 0%;
-  z-index: 1000;
   margin: 0 auto;
   padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: end;
+}
+
+#navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .layout {
