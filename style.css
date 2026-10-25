@@ -1,10 +1,4 @@
-/* Three colours (neutrals excluded):
-   navy      = text, borders, header, "moved" pins, error messages, delete
-   off-white = page background, "unchecked" pins
-   teal      = primary actions, banner, "confirmed" pins, success messages
-   The greys are navy at lower opacity, so no fourth colour sneaks in.
-   Teal is never used as TEXT on off-white (contrast is only 1.9:1, too
-   faint to read). It is a background colour, or text on navy. */
+
 :root {
   --navy: #12202b;
   --offwhite: #f3efe6;
