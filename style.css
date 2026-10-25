@@ -28,7 +28,7 @@ a:hover { background: var(--teal); }
 .site-header { 
 position: sticky;
 padding: 1rem 1.5rem 0.9rem;
-background: var(--navy);
+background:#f0a93b;
 color: var(--offwhite); 
 text-align: center;
 font: var(--main-font);
@@ -38,10 +38,11 @@ font: var(--main-font);
   margin: 0; 
   font-size: 
   1.6rem; 
+  color:#12202b
 }
 .subtitle { 
 margin: 0.25rem 0 0; 
-color: var(--teal); 
+color: #12202b; 
 }
 #navbar {
   position:sticky;

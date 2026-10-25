@@ -24,10 +24,11 @@
 
   <main class="layout">
     <section class="map-section" aria-labelledby="map-heading">
+<!-- aria-labelledby - It names a region or block of content so screen readers can announce it during navigation -->
       <div class="toolbar">
         <button type="button" id="load-area" class="primary">Load this area</button>
         <label for="search">Search by name</label>
-        <input type="search" id="search" placeholder="e.g. Total">
+        <input type="search" id="search" placeholder="eg Ngong Road">
         <label for="status-filter">Status</label>
         <select id="status-filter">
           <option value="all">All</option>
@@ -47,7 +48,9 @@
     </section>
 
     <aside class="panels">
+<!-- aside - It is frequently used for sidebars, pull quotes, advertising, or floating control panels -->
       <section aria-labelledby="existing-heading" class="panel">
+<!-- prefixed by 'ex-' -->
         <h2 id="existing-heading">Existing information</h2>
         <dl>
           <dt>Name</dt><dd id="ex-name">–</dd>
@@ -55,6 +58,7 @@
           <dt>Original position</dt><dd id="ex-original">Select a pin on the map.</dd>
           <dt>Status</dt><dd id="ex-status">–</dd>
         </dl>
+<!-- dl>description list, dt>Description Term, and dd>Description Details -->
       </section>
 
       <section aria-labelledby="form-title" class="panel">
