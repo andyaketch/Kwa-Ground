@@ -1,1 +1,16 @@
-{"places": []}
+{
+  "places": [
+    {
+      "placeId": null,
+      "originalLat": null,
+      "originalLon": null,
+      "name": "man with a blog",
+      "address": "",
+      "lat": -1.317078,
+      "lon": 36.820537,
+      "status": "confirmed",
+      "note": "",
+      "id": 1
+    }
+  ]
+}
