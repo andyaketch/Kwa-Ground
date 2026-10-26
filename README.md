@@ -5,7 +5,7 @@
 Kwa Ground lets someone on the ground (a courier, an Uber passenger, a pedestrian) load facility buildings for any area from a public places API, see them on a Leaflet map, and correct them: move a pin, change its status, add a missing building, or remove a bad record.
 
 
-- Live app: [_Link to the app_](https://andyaketch.github.io/Kwa-Ground/)
+- Live app: [_Link to the app_](https://kwagroundone.netlify.app/)
 
 ## Objectives
 
