@@ -1,21 +1,31 @@
 {
   "name": "kwa-ground",
   "version": "1.0.0",
-  "description": "",
+  "description": "Spatial auditing: correct wrong building locations on the ground.",
+  "type": "module",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "python3 -m http.server 8080",
+    "api": "node server.js",
+    "start": "node server.js",
+    "test": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andyaketch/Kwa-Ground.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Andy Aketch",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/andyaketch/Kwa-Ground/issues"
   },
-  "homepage": "https://github.com/andyaketch/Kwa-Ground#readme"
-  
+  "homepage": "https://github.com/andyaketch/Kwa-Ground#readme",
+  "dependencies": {
+    "json-server": "0.17.4"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
+  }
 }
