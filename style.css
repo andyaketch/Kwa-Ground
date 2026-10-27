@@ -28,7 +28,6 @@ a { color: var(--navy); }
 a:hover { background: var(--teal); }
 
 .site-header { 
-  position: sticky;
   top: 0;
   z-index: 1100;
   padding: 1rem 1.5rem 0.9rem;
