@@ -24,23 +24,8 @@
     <section class="map-section" aria-labelledby="map-heading">
       <h2 id="map-heading" class="visually-hidden">Map</h2>
 
-      <div class="toolbar">
-        <button type="button" id="load-area" class="primary">Load this area</button>
-        <label for="search">Search by name</label>
-        <input type="search" id="search" placeholder="eg Ngong Road">
-        <label for="status-filter">Status</label>
-        <select id="status-filter">
-          <option value="all">All</option>
-        </select>
-      </div>
 
       <p id="status" role="status" aria-live="polite">Starting…</p>
-
-      <!-- NEW: main.js writes to these two -->
-      <p class="meta">
-        Area: <output id="bbox">–</output> ·
-        <span id="count">0 of 0 shown</span>
-      </p>
 
       <div id="map-container" aria-label="Map of buildings"></div>
 
