@@ -33,9 +33,9 @@ JSON Server, hosted on Render
 ```bash
 npm install
 # put your Geoapify key in config.js
-npm run api                          # JSON Server on http://localhost:3000
-npm run serve                        # app on http://localhost:8080 (second terminal)
-npm test                             # unit tests with coverage
+npm run api                         
+npm run serve                       
+npm test                             
 ```
 
 ## Deployment
