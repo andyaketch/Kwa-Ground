@@ -1,11 +1,11 @@
 # Kwa Ground
 
-*Spatial auditing: when the map sends you to a building that isn't there, fix it.*
 
 Kwa Ground lets someone on the ground (a courier, an Uber passenger, a pedestrian) load facility buildings for any area from a public places API, see them on a Leaflet map, and correct them: move a pin, change its status, add a missing building, or remove a bad record.
 
 
 - **Live App:** [Kwa-Ground](https://andyaketch.github.io/Kwa-Ground/)
+- **Data server (Render):** [kwagroundproductions.onrender.com](https://kwagroundproductions.onrender.com/places)
 
 ## Objectives
 
@@ -26,16 +26,26 @@ CSS
 vanilla JavaScript
 Leaflet 1.9 with OpenStreetMap tiles
 Geoapify Places API
+JSON Server, hosted on Render
 
 ## Setup
 
 ```bash
 npm install
-cp config.example.js config.js      # then put your Geoapify key in config.js
+# put your Geoapify key in config.js
 npm run api                          # JSON Server on http://localhost:3000
 npm run serve                        # app on http://localhost:8080 (second terminal)
 npm test                             # unit tests with coverage
 ```
+
+## Deployment
+
+The app is two parts, hosted in two places:
+
+| Part | Host | How |
+|---|---|---|
+| Page (HTML, CSS, JS) | GitHub Pages | static files, deployed by the GitHub Actions workflow in `.github/workflows` |
+| Data (JSON Server) | Render (free web service) | runs `server.js` |
 
 ## Modules
 
@@ -58,15 +68,10 @@ npm test                             # unit tests with coverage
 | Action | Method | Endpoint |
 |---|---|---|
 | Load saved buildings | GET | `/places` |
-| Import a new area / add a building | POST | `/places` |
+| add a building/facilty | POST | `/places` |
 | Save the full edit form | PUT | `/places/:id` |
 | Drag a pin / change position | PATCH | `/places/:id` |
 | Remove a record | DELETE | `/places/:id` |
-
-
-## Known limitation
-
-If you delete a record and load the same area again, the API returns it again. To mark a building as not existing, set its status to "Not found" instead of deleting it.
 
 ## Licence
 
