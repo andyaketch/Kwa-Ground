@@ -47,18 +47,6 @@ The app is two parts, hosted in two places:
 | Page (HTML, CSS, JS) | GitHub Pages | static files, deployed by the GitHub Actions workflow in `.github/workflows` |
 | Data (JSON Server) | Render (free web service) | runs `server.js` |
 
-## Modules
-
-| File | Job |
-|---|---|
-| `main.js` | wires everything to the page |
-| `basemap.js` | Leaflet map and tiles |
-| `geo.js` | bounds to area of interest, area-size check |
-| `api.js` | Geoapify Places requests |
-| `store.js` | JSON Server requests (GET, POST, PUT, PATCH, DELETE) |
-| `validate.js` | form validation |
-| `ui.js` | DOM helpers |
-
 ## API endpoints used
 
 **Geoapify** (public): `GET https://api.geoapify.com/v2/places?categories=building.commercial&filter=rect:west,south,east,north&limit=100&apiKey=...`
